@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useReducer} from "react";
+import { useEffect, useReducer } from "react";
 import ResourceList from "./ResourceList";
 //controls logic and api calls for searching the Star Wars API
 //ResourceContainer is a general wrapper for handling each 'resource' as shown in the SWAPI
@@ -48,6 +48,8 @@ const resourceReducer = (state, action) => {
 };
 
 const ResourceContainer = ({ resource, ResourceListItem, searchTerm }) => {
+  console.log('RENDERING RESOURCE CONTAINER');
+
   const initialResourceState = {
     fetching: false,
     resource: resource,
@@ -61,30 +63,36 @@ const ResourceContainer = ({ resource, ResourceListItem, searchTerm }) => {
     initialResourceState
   );
 
-  const handleFetchResource = () => {
-    const searchUrl = `https://swapi.dev/api/${resource}/?search=${searchTerm}`;
-
-    axios
-      .get(searchUrl)
-      .then((res) => {
-        console.log(res);
-        dispatchResource({
-          type: actionTypes.LOAD,
-          payload: res.data,
-        });
-      })
-      .catch((err) =>
-        dispatchResource({ type: "ERROR_FETCHING_RESOURCE", payload: err })
-      );
-  };
-
   useEffect(() => {
+
+    const handleFetchResource = () => {
+        const searchUrl = `https://swapi.dev/api/${resource}/?search=${searchTerm}`;
+    
+        axios
+          .get(searchUrl)
+          .then((res) => {
+            console.log(res);
+            dispatchResource({
+              type: actionTypes.LOAD,
+              payload: res.data,
+            });
+          })
+          .catch((err) =>
+            dispatchResource({ type: "ERROR_FETCHING_RESOURCE", payload: err })
+          );
+      };
+
     if (searchTerm) {
       handleFetchResource();
     }
-  });
+  }, [resource, searchTerm]);
 
-  return <ResourceList ResourceListItem={ResourceListItem} data={resourceState.resourceList} />;
+  return (
+    <ResourceList
+      ResourceListItem={ResourceListItem}
+      data={resourceState.resourceList}
+    />
+  );
 };
 
 export default ResourceContainer;
